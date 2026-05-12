@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <!-- Meta tags for social media banners -->
-  <meta name="description" content="PhysVideo: Physically Plausible Video Generation with Cross-View Geometry Guidance">
-  <meta property="og:title" content="PhysVideo: Physically Plausible Video Generation with Cross-View Geometry Guidance"/>
+  <meta name="description" content="OrthoPhys: Physically Plausible Video Generation with Orthogonal-View Geometry Guidance">
+  <meta property="og:title" content="OrthoPhys: Physically Plausible Video Generation with Orthogonal-View Geometry Guidance"/>
   <meta property="og:description" content="A novel paradigm for photorealistic 4D scene synthesis with faithful adherence to complex physical dynamics."/>
   <meta property="og:url" content="YOUR_WEBSITE_URL_HERE"/>
   <meta property="og:image" content="static/image/your_banner_image.png" />
   <meta property="og:image:width" content="1200"/>
   <meta property="og:image:height" content="630"/>
 
-  <meta name="twitter:title" content="PhysVideo: Physically Plausible Video Generation with Cross-View Geometry Guidance">
+  <meta name="twitter:title" content="OrthoPhys: Physically Plausible Video Generation with Orthogonal-View Geometry Guidance">
   <meta name="twitter:description" content="Generate physically plausible 4D scenes with high fidelity and controllability.">
   <meta name="twitter:image" content="static/images/your_twitter_banner_image.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="keywords" content="4D generation, physics-aware, NeRF, video synthesis, computer vision, AI">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>PhysVideo</title>
-  <link rel="icon" type="image/x-icon" href="static/images/physvideo.ico">
+  <title>OrthoPhys</title>
+  <link rel="icon" type="image/x-icon" href="static/images/OrthoPhys.ico">
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
@@ -333,14 +333,6 @@
       text-align: center;
     }
 
-    .novel-view-row {
-      padding: 1.35rem;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.86);
-      border: 1px solid rgba(74, 144, 226, 0.08);
-      box-shadow: 0 12px 28px rgba(31, 41, 55, 0.06);
-    }
-
     .novel-view-demo-group {
       height: 100%;
       padding: 1rem;
@@ -490,7 +482,7 @@
     }
 
     .sidebar-nav-content {
-      padding: 2rem 1.5rem;
+      padding: 1.75rem 1.25rem;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -531,20 +523,24 @@
       padding: 0;
       margin: 0;
       flex: 1;
+      overflow-y: auto;
+      padding-right: 0.2rem;
     }
 
     .sidebar-nav-list li {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
     }
 
     .sidebar-nav-link {
       display: block;
-      padding: 1rem 1.5rem;
+      padding: 0.75rem 0.95rem;
       color: white;
       text-decoration: none;
       border-radius: 8px;
       transition: all 0.3s ease;
       font-weight: 500;
+      font-size: 0.9rem;
+      line-height: 1.25;
       position: relative;
     }
 
@@ -640,7 +636,11 @@
       const sidebar = document.getElementById('sidebar-nav');
       const toggleBtn = document.getElementById('sidebar-toggle-btn');
       const closeBtn = document.getElementById('sidebar-toggle');
-      const navLinks = document.querySelectorAll('.sidebar-nav-link');
+      const navLinks = Array.from(document.querySelectorAll('.sidebar-nav-link'));
+
+      function getDocumentTop(element) {
+        return element === document.body ? 0 : element.getBoundingClientRect().top + window.scrollY;
+      }
       
       // Toggle sidebar
       function toggleSidebar() {
@@ -674,22 +674,20 @@
       
       // Active link highlighting based on scroll position
       function updateActiveLink() {
-        const sections = document.querySelectorAll('section[id], #top');
-        const scrollPos = window.scrollY + 100;
+        const scrollPos = window.scrollY + 120;
+        let activeHref = '#top';
         
-        sections.forEach(section => {
-          const sectionTop = section.offsetTop;
-          const sectionHeight = section.offsetHeight;
-          const sectionId = section.id || 'top';
+        navLinks.forEach(link => {
+          const targetId = link.getAttribute('href').substring(1);
+          const targetElement = targetId === 'top' ? document.body : document.getElementById(targetId);
           
-          if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-            navLinks.forEach(link => {
-              link.classList.remove('active');
-              if (link.getAttribute('href') === '#' + sectionId) {
-                link.classList.add('active');
-              }
-            });
+          if (targetElement && scrollPos >= getDocumentTop(targetElement)) {
+            activeHref = '#' + targetId;
           }
+        });
+
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === activeHref);
         });
       }
       
@@ -704,7 +702,7 @@
           const targetElement = targetId === 'top' ? document.body : document.getElementById(targetId);
           
           if (targetElement) {
-            const offsetTop = targetId === 'top' ? 0 : targetElement.offsetTop - 80;
+            const offsetTop = targetId === 'top' ? 0 : getDocumentTop(targetElement) - 80;
             window.scrollTo({
               top: offsetTop,
               behavior: 'smooth'
@@ -712,6 +710,8 @@
           }
         });
       });
+
+      updateActiveLink();
     });
   </script>
 </head>
@@ -728,7 +728,7 @@
         <div class="navbar-end">
           <a class="navbar-item" href="#abstract">Abstract</a>
           <a class="navbar-item" href="#video-comparison">Video Comparison</a>
-          <a class="navbar-item" href="#novel-view">Novel-view</a>
+          <a class="navbar-item" href="#application">Application</a>
         </div>
       </div>
     </div>
@@ -741,32 +741,156 @@
       <div class="hero-shell">
         <div class="hero-card has-text-centered">
           <h1 class="title hero-title">
-            PhysVideo: Physically Plausible Video Generation with Cross-View Geometry Guidance
+            OrthoPhys: Physically Plausible Video Generation with Orthogonal-View Geometry Guidance
           </h1>
           <p class="hero-subtitle">
             A physics-aware framework for generating visually faithful videos with stronger geometric consistency, controllable dynamics, and more physically plausible motion.
           </p>
-          <div class="rebuttal-panel">
-            <div class="rebuttal-badge">
-              <span class="icon is-small"><i class="fas fa-flag"></i></span>
-              Rebuttal Update
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  
+
+    
+
+  <section class="section" id="abstract">
+    <div class="section-shell">
+      <div class="section-card">
+        <h2 class="title is-3 has-text-centered mb-4 section-title">Abstract</h2>
+        <div class="content has-text-justified">
+          <p class="is-size-5">
+            Recent progress in video generation has led to substantial improvements in visual fidelity, yet ensuring physically consistent motion remains a fundamental challenge. Intuitively, this limitation can be attributed to the fact that real-world object motion unfolds in three-dimensional space, while video observations provide only partial, view-dependent projections of such dynamics. To address these issues, we propose <strong>OrthoPhys</strong>, a two-stage framework that leverages orthogonal-view geometry guidance to enforce physical plausibility. Instead of directly generating unstructured 2D videos, our first stage generates synchronized, four-view orthogonal videos of the foreground dynamics. By incorporating a geometry-enhanced attention mechanism across these orthogonal views, this stage effectively enforces 3D spatial coherence and implicitly grounds the motion in physical attributes. In the second stage, these physically consistent orthogonal foregrounds serve as rigid guidance to synthesize the final complete video, seamlessly learning the interaction between foreground dynamics and the background context. To support this orthogonal-view training paradigm, we construct PhysMV, a dataset containing 40K scenes, each consisting of four orthogonal viewpoints, resulting in a total of 160K video sequences. Extensive experiments demonstrate that OrthoPhys significantly improves physical realism and spatial-temporal coherence over existing video generation methods.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="framework">
+    <div class="section-shell">
+      <div class="section-card">
+        <h2 class="title is-3 has-text-centered mb-5 section-title">
+          <span class="icon mr-2"><i class="fas fa-sitemap"></i></span>
+          Framework Overview
+        </h2>
+        <figure class="content-card p-4">
+          <div class="has-text-centered mb-4">
+            <img src="static/images/framework.png" alt="Pipeline of OrthoPhys" style="width: 100%; height: auto; border-radius: 12px;">
+          </div>
+          <figcaption class="has-text-justified is-size-6" style="font-style: italic;">
+            <strong>Pipeline of OrthoPhys.</strong> OrthoPhys generates physically plausible videos via a two-stage pipeline: 1) generating physics-aware orthogonal foreground videos, 2) generating a plausible video with the guidance of foreground motion.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="video-comparison">
+    <div class="section-shell">
+      <div class="section-card">
+        <h1 class="title is-2 has-text-centered mb-6 section-title">
+          <span class="icon mr-2"><i class="fas fa-film"></i></span>
+          Video Comparison Gallery
+        </h1>
+        <div class="video-comparison comparison-surface" id="comparison-watermelon-water">
+          <h2 class="title is-4 has-text-centered mb-5 section-title">A watermelon falls into the water.</h2>
+          <div class="columns is-vcentered">
+            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
+              <div class="box">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/031.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">OrthoPhys (Ours)</p>
+              </div>
             </div>
-            <p class="rebuttal-text">
-              For easier review, the new rebuttal materials are placed directly below the title. The three sections below summarize the additional challenging-scene comparisons, physical-result analyses, and novel-view visualizations added during rebuttal.
-            </p>
-            <div class="rebuttal-links">
-              <a class="rebuttal-link" href="#challenging-results">
-                <span class="icon is-small"><i class="fas fa-camera"></i></span>
-                <span>Challenging Scene Comparison</span>
-              </a>
-              <a class="rebuttal-link" href="#physical-results">
-                <span class="icon is-small"><i class="fas fa-wave-square"></i></span>
-                <span>Physical Results</span>
-              </a>
-              <a class="rebuttal-link" href="#novel-view-rebuttal">
-                <span class="icon is-small"><i class="fas fa-sync-alt"></i></span>
-                <span>Novel-view Visualization</span>
-              </a>
+            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
+              <div class="columns is-multiline has-text-centered baseline-columns">
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-comparison comparison-surface" id="comparison-toy-duck-water">
+          <h2 class="title is-4 has-text-centered mb-5 section-title">A toy duck falls into the water.</h2>
+          <div class="columns is-vcentered">
+            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
+              <div class="box">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/033.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">OrthoPhys (Ours)</p>
+              </div>
+            </div>
+            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
+              <div class="columns is-multiline has-text-centered baseline-columns">
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-comparison comparison-surface" id="comparison-banana-ground">
+          <h2 class="title is-4 has-text-centered mb-5 section-title">A banana falls onto the ground.</h2>
+          <div class="columns is-vcentered">
+            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
+              <div class="box">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/029.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">OrthoPhys (Ours)</p>
+              </div>
+            </div>
+            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
+              <div class="columns is-multiline has-text-centered baseline-columns">
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-comparison comparison-surface" id="comparison-cap-ground">
+          <h2 class="title is-4 has-text-centered mb-5 section-title">A cap falls onto the ground.</h2>
+          <div class="columns is-vcentered">
+            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
+              <div class="box">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/018.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">OrthoPhys (Ours)</p>
+              </div>
+            </div>
+            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
+              <div class="columns is-multiline has-text-centered baseline-columns">
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
+                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -774,67 +898,60 @@
     </div>
   </section>
 
+
   <section class="section more-results-gallery" id="challenging-results">
     <div class="section-shell">
       <div class="section-card">
         <div class="has-text-centered">
-          <div class="section-note">
-            <span class="icon is-small"><i class="fas fa-flag"></i></span>
-            Rebuttal Addition
-          </div>
         </div>
         <h1 class="title is-2 has-text-centered mb-6 section-title">
           <span class="icon mr-2"><i class="fas fa-camera"></i></span>
           Challenging Scene Comparison
         </h1>
-        <p class="section-intro">
-          Each row shows the same scene under identical layout for direct qualitative comparison across methods.
-        </p>
-
-        <div class="comparison-case">
+        <div class="comparison-case" id="challenging-elastic-toy-dogs">
           <p class="comparison-case-title"><span>All elastic toy dogs fall onto the ground.</span></p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/035.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysVideo (Ours)</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/035.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">OrthoPhys (Ours)</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/035.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">CogVideoX</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/force/035.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">Force Prompting</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/035.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysGen3D</p></div></div>
           </div>
         </div>
 
-         <div class="comparison-case">
+         <div class="comparison-case" id="challenging-toy-ducks-water">
           <p class="comparison-case-title"><span>All toy ducks fall into the water.</span></p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/036.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysVideo (Ours)</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/036.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">OrthoPhys (Ours)</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/036.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">CogVideoX</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/force/036.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">Force Prompting</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/036.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysGen3D</p></div></div>
           </div>
         </div>
 
-        <div class="comparison-case">
+        <div class="comparison-case" id="challenging-leaves-ground">
           <p class="comparison-case-title"><span>All leaves fall slowly onto the ground.</span></p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/041.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysVideo (Ours)</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/041.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">OrthoPhys (Ours)</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/041.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">CogVideoX</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/force/041.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">Force Prompting</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/041.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysGen3D</p></div></div>
           </div>
         </div>
 
-        <div class="comparison-case">
+        <div class="comparison-case" id="challenging-shirt-wind">
           <p class="comparison-case-title"><span>The hem of the shirt hanging there was blown by the wind.</span></p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/094.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysVideo (Ours)</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/094.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">OrthoPhys (Ours)</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/094.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">CogVideoX</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/force/094.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">Force Prompting</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/094.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysGen3D</p></div></div>
           </div>
         </div>
 
-        <div class="comparison-case">
+        <div class="comparison-case" id="challenging-towel-ground">
           <p class="comparison-case-title"><span>A white towel falls onto the ground.</span></p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/022.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysVideo (Ours)</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/022.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">OrthoPhys (Ours)</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/022.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">CogVideoX</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/force/022.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">Force Prompting</p></div></div>
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="box comparison-card"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/022.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="method-label">PhysGen3D</p></div></div>
@@ -844,24 +961,17 @@
     </div>
   </section>
 
+
   <section class="section" id="physical-results">
     <div class="section-shell">
       <div class="section-card">
         <div class="has-text-centered">
-          <div class="section-note">
-            <span class="icon is-small"><i class="fas fa-flag"></i></span>
-            Rebuttal Addition
-          </div>
         </div>
         <h1 class="title is-2 has-text-centered mb-6 section-title">
           <span class="icon mr-2"><i class="fas fa-photo-video"></i></span>
           Physical Results
         </h1>
-        <p class="section-intro">
-          Additional generated examples demonstrating stable motion quality and controllable 4D synthesis across different scenes.
-        </p>
-
-        <div class="scene-panel">
+        <div class="scene-panel" id="physical-material-parameters-1">
           <p class="scene-title">Variation of Material Parameters</p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
             <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
@@ -894,7 +1004,7 @@
           </div>
         </div>
 
-        <div class="scene-panel">
+        <div class="scene-panel" id="physical-material-parameters-2">
           <p class="scene-title">Variation of Material Parameters</p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
             <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
@@ -927,7 +1037,7 @@
           </div>
         </div>
 
-        <div class="scene-panel">
+        <div class="scene-panel" id="physical-motion-parameters-1">
           <p class="scene-title">Variation of Motion Parameters</p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
             <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
@@ -960,7 +1070,7 @@
           </div>
         </div>
 
-        <div class="scene-panel">
+        <div class="scene-panel" id="physical-motion-parameters-2">
           <p class="scene-title">Variation of Motion Parameters</p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
             <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
@@ -997,24 +1107,129 @@
     </div>
   </section>
 
-    <section class="section" id="novel-view-rebuttal">
+
+  <section class="section" id="more-results">
     <div class="section-shell">
       <div class="section-card">
-        <div class="has-text-centered">
-          <div class="section-note">
-            <span class="icon is-small"><i class="fas fa-flag"></i></span>
-            Rebuttal Addition
+        <h1 class="title is-2 has-text-centered mb-6 section-title">
+          <span class="icon mr-2"><i class="fas fa-photo-video"></i></span>
+          More Results
+        </h1>
+        <div class="scene-panel" id="more-additional-examples">
+          <p class="scene-title">Additional Examples</p>
+          <div class="columns is-centered is-multiline has-text-centered compact-grid">
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/016.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Example 1</p>
+              </div>
+            </div>
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/015.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Example 2</p>
+              </div>
+            </div>
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/002.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Example 3</p>
+              </div>
+            </div>
           </div>
         </div>
-        <h1 class="title is-2 has-text-centered mb-6 section-title">
-          <span class="icon mr-2"><i class="fas fa-sync-alt"></i></span>
-          Novel-view Visualization
-        </h1>
-        <p class="rebuttal-video-note">
-          Each demo shows a side-by-side comparison between the original rendered view and a novel view, helping illustrate geometry plausibility and appearance consistency under viewpoint changes.
-        </p>
 
-        <div class="novel-view-row">
+        <div class="scene-panel" id="more-fluid-interaction">
+          <p class="scene-title">Interaction with Fluid</p>
+          <div class="columns is-centered is-multiline has-text-centered compact-grid">
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/053.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Fluid Scene 1</p>
+              </div>
+            </div>
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/051.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Fluid Scene 2</p>
+              </div>
+            </div>
+            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/052.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Fluid Scene 3</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="section" id="application">
+    <div class="section-shell">
+      <div class="section-card">
+        <h1 class="title is-2 has-text-centered mb-6 section-title">
+          <span class="icon mr-2"><i class="fas fa-layer-group"></i></span>
+          Application: 4D Video Synthesis
+        </h1>
+        <div class="scene-panel" id="application-four-view-background">
+          <p class="scene-title">4-View Generation with Background</p>
+          <div class="columns is-centered is-multiline has-text-centered">
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v004.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Front View</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v001.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Right View</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v002.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Back View</p></div></div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v003.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Left View</p></div></div>
+          </div>
+        </div>
+
+        <div class="scene-panel" id="application-object-editing">
+          <p class="scene-title">Object Editing</p>
+          <div class="columns is-centered is-multiline has-text-centered">
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/object_1.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Original</p>
+              </div>
+            </div>
+            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile">
+              <div class="media-card">
+                <video poster="" autoplay controls muted loop>
+                  <source src="static/videos/ours/object_2.mp4" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <p class="media-label">Rotated</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scene-panel" id="novel-view-rebuttal">
+          <div class="has-text-centered">
+          </div>
+          <p class="scene-title">Fixed Novel-view Synthesis</p>
           <div class="columns is-centered is-multiline has-text-centered">
             <div class="column is-6-desktop is-full-tablet">
               <div class="novel-view-demo-group">
@@ -1067,10 +1282,8 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <p class="novel-view-subtitle">Moving-view Novel Observations</p>
-        <div class="novel-view-row">
+          <p class="novel-view-subtitle" id="application-moving-novel-observations">Moving-view Novel Observations</p>
           <div class="columns is-centered is-multiline has-text-centered compact-grid">
             <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile">
               <div class="media-card">
@@ -1114,281 +1327,6 @@
     </div>
   </section>
 
-  <section class="section" id="abstract">
-    <div class="section-shell">
-      <div class="section-card">
-        <h2 class="title is-3 has-text-centered mb-4 section-title">Abstract</h2>
-        <div class="content has-text-justified">
-          <p class="is-size-5">
-            Recent video generation models have achieved impressive visual fidelity, yet they often produce physically implausible motions, limiting their realism in dynamic scenes. This limitation stems from the fact that real-world object motion unfolds in three-dimensional space, while video observations provide only partial, view-dependent projections of such dynamics. Motivated by this observation, we propose <strong>PhysVideo</strong>, a physics-driven framework that models foreground motion across multiple views to better capture physically grounded dynamics, and subsequently synthesizes background-aware videos. PhysVideo follows a two-stage paradigm: in the first stage, <strong>Phys4View</strong> generates temporally coherent and geometrically consistent four-view videos conditioned on a single image, a text prompt, and explicit physical attributes, using physics-aware and spatiotemporal attention mechanisms; in the second stage, <strong>VideoSyn</strong> leverages the generated multi-view motion as guidance and learns data-driven interactions between foreground dynamics and background context for controllable video synthesis. To support training and evaluation, we construct <strong>PhysMV</strong>, the first large-scale physics-oriented video dataset, comprising 40K 4-view videos generated with a physics engine and annotated with physical attributes. Extensive experiments demonstrate that PhysVideo significantly improves physical realism and spatial-temporal coherence over existing video generation methods.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="framework">
-    <div class="section-shell">
-      <div class="section-card">
-        <h2 class="title is-3 has-text-centered mb-5 section-title">
-          <span class="icon mr-2"><i class="fas fa-sitemap"></i></span>
-          Framework Overview
-        </h2>
-        <figure class="content-card p-4">
-          <div class="has-text-centered mb-4">
-            <img src="static/images/framework.png" alt="Pipeline of PhysVideo" style="width: 100%; height: auto; border-radius: 12px;">
-          </div>
-          <figcaption class="has-text-justified is-size-6" style="font-style: italic;">
-            <strong>Pipeline of PhysVideo.</strong> PhysVideo generates physically plausible videos via a two-stage pipeline: 1) generating physics-aware orthogonal foreground videos, 2) generating a plausible video with the guidance of foreground motion.
-          </figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="video-comparison">
-    <div class="section-shell">
-      <div class="section-card">
-        <h1 class="title is-2 has-text-centered mb-6 section-title">
-          <span class="icon mr-2"><i class="fas fa-film"></i></span>
-          Video Comparison Gallery
-        </h1>
-        <p class="section-intro">
-          Our method is compared against representative baselines on diverse physical interaction scenarios. All examples are aligned in a shared width and card system for cleaner side-by-side reading.
-        </p>
-
-        <div class="video-comparison comparison-surface">
-          <h2 class="title is-4 has-text-centered mb-5 section-title">A watermelon falls into the water.</h2>
-          <div class="columns is-vcentered">
-            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
-              <div class="box">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/031.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">PhysVideo (Ours)</p>
-              </div>
-            </div>
-            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
-              <div class="columns is-multiline has-text-centered baseline-columns">
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/031.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="video-comparison comparison-surface">
-          <h2 class="title is-4 has-text-centered mb-5 section-title">A toy duck falls into the water.</h2>
-          <div class="columns is-vcentered">
-            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
-              <div class="box">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/033.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">PhysVideo (Ours)</p>
-              </div>
-            </div>
-            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
-              <div class="columns is-multiline has-text-centered baseline-columns">
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/033.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="video-comparison comparison-surface">
-          <h2 class="title is-4 has-text-centered mb-5 section-title">A banana falls onto the ground.</h2>
-          <div class="columns is-vcentered">
-            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
-              <div class="box">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/029.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">PhysVideo (Ours)</p>
-              </div>
-            </div>
-            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
-              <div class="columns is-multiline has-text-centered baseline-columns">
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan 2.2</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/029.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="video-comparison comparison-surface">
-          <h2 class="title is-4 has-text-centered mb-5 section-title">A cap falls onto the ground.</h2>
-          <div class="columns is-vcentered">
-            <div class="column is-one-quarter-desktop is-full-tablet is-full-mobile">
-              <div class="box">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/018.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="has-text-weight-semibold mt-2 has-text-primary has-text-centered">PhysVideo (Ours)</p>
-              </div>
-            </div>
-            <div class="column is-three-quarters-desktop is-full-tablet is-full-mobile">
-              <div class="columns is-multiline has-text-centered baseline-columns">
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen3d/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen3D</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/cogvideo/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">CogVideoX</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/wan/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Wan</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/force/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">Force Prompting</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/physgen/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">PhysGen</p></div></div>
-                <div class="column is-one-third-desktop is-half-tablet is-full-mobile"><div class="box"><video poster="" autoplay controls muted loop><source src="static/videos/omniphysgs/018.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="has-text-weight-semibold mt-2">OmniPhysGS</p></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="more-results">
-    <div class="section-shell">
-      <div class="section-card">
-        <h1 class="title is-2 has-text-centered mb-6 section-title">
-          <span class="icon mr-2"><i class="fas fa-photo-video"></i></span>
-          More Results
-        </h1>
-        <p class="section-intro">
-          Additional generated examples demonstrating stable motion quality and controllable motion synthesis across different scenes.
-        </p>
-
-        <div class="scene-panel">
-          <p class="scene-title">Additional Examples</p>
-          <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/016.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Example 1</p>
-              </div>
-            </div>
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/015.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Example 2</p>
-              </div>
-            </div>
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/002.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Example 3</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="scene-panel">
-          <p class="scene-title">Interaction with Fluid</p>
-          <div class="columns is-centered is-multiline has-text-centered compact-grid">
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/053.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Fluid Scene 1</p>
-              </div>
-            </div>
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/051.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Fluid Scene 2</p>
-              </div>
-            </div>
-            <div class="column is-one-third-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/052.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Fluid Scene 3</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <section class="section" id="application">
-    <div class="section-shell">
-      <div class="section-card">
-        <h1 class="title is-2 has-text-centered mb-6 section-title">
-          <span class="icon mr-2"><i class="fas fa-layer-group"></i></span>
-          Application: 4D Video Synthesis
-        </h1>
-        <p class="section-intro">
-          Beyond direct comparison, PhysVideo supports multi-view generation and simple object editing with a consistent visual layout.
-        </p>
-
-        <div class="scene-panel">
-          <p class="scene-title">4-View Generation with Background</p>
-          <div class="columns is-centered is-multiline has-text-centered">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v004.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Front View</p></div></div>
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v001.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Right View</p></div></div>
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v002.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Back View</p></div></div>
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile"><div class="media-card"><video poster="" autoplay controls muted loop><source src="static/videos/ours/000011_v003.mp4" type="video/mp4">Your browser does not support the video tag.</video><p class="media-label">Left View</p></div></div>
-          </div>
-        </div>
-
-        <div class="scene-panel">
-          <p class="scene-title">Object Editing</p>
-          <div class="columns is-centered is-multiline has-text-centered">
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/object_1.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Original</p>
-              </div>
-            </div>
-            <div class="column is-one-quarter-desktop is-half-tablet is-full-mobile">
-              <div class="media-card">
-                <video poster="" autoplay controls muted loop>
-                  <source src="static/videos/ours/object_2.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-                </video>
-                <p class="media-label">Rotated</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <nav class="sidebar-nav" id="sidebar-nav">
     <div class="sidebar-nav-content">
       <div class="sidebar-nav-header">
@@ -1399,12 +1337,11 @@
       </div>
       <ul class="sidebar-nav-list">
         <li><a href="#top" class="sidebar-nav-link">Home</a></li>
-        <li><a href="#challenging-results" class="sidebar-nav-link">Rebuttal: Challenging Scene Comparison</a></li>
-        <li><a href="#physical-results" class="sidebar-nav-link">Rebuttal: Physical Results</a></li>
-        <li><a href="#novel-view-rebuttal" class="sidebar-nav-link">Rebuttal: Novel-view Visualization</a></li>
         <li><a href="#abstract" class="sidebar-nav-link">Abstract</a></li>
         <li><a href="#framework" class="sidebar-nav-link">Framework Overview</a></li>
         <li><a href="#video-comparison" class="sidebar-nav-link">Video Comparison Gallery</a></li>
+        <li><a href="#challenging-results" class="sidebar-nav-link">Challenging Scene Comparison</a></li>
+        <li><a href="#physical-results" class="sidebar-nav-link">Physical Results</a></li>
         <li><a href="#more-results" class="sidebar-nav-link">More Results</a></li>
         <li><a href="#application" class="sidebar-nav-link">Application: 4D Video Synthesis</a></li>
       </ul>
